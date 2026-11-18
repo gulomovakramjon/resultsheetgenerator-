@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Exam Results Sheet Generator</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f5f7;--card:#fff;--tx:#1b1f27;--mu:#667085;--bd:#dfe3ea;--ac:#2f6fed;--ac2:#e8effd;--bad:#d92d20;--g:#92d050;--b:#00b0f0;--o:#f79646;--gr:#d9d9d9}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14161b;--card:#1d2027;--tx:#eceef2;--mu:#98a1b3;--bd:#2f3440;--ac:#6b9bff;--ac2:#232c42;--bad:#ff7a70}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#14161b;--card:#1d2027;--tx:#eceef2;--mu:#98a1b3;--bd:#2f3440;--ac:#6b9bff;--ac2:#232c42;--bad:#ff7a70}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:28px 16px 60px}
+h1{font-size:22px;margin:0 0 4px}.sub{color:var(--mu);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:22px;margin-bottom:16px}
+.steps{display:flex;gap:6px;margin-bottom:18px}.steps i{flex:1;height:5px;border-radius:3px;background:var(--bd)}.steps i.on{background:var(--ac)}
+label{display:block;font-weight:600;font-size:13px;margin:14px 0 5px}
+input,textarea,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);font:inherit}
+input:focus,textarea:focus{outline:2px solid var(--ac);outline-offset:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.row{grid-template-columns:1fr}}
+.btn{border:0;border-radius:9px;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer;background:var(--ac);color:#fff}
+.btn.sec{background:var(--ac2);color:var(--ac)}.btn.ghost{background:none;color:var(--mu);border:1px solid var(--bd)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:22px}
+.hint{font-size:12.5px;color:var(--mu);margin-top:4px}
+.err{color:var(--bad);font-size:13px;margin-top:8px;min-height:18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}.stat b{display:block;font-size:22px}.stat span{font-size:12px;color:var(--mu)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.tools label{display:flex;gap:6px;align-items:center;margin:0 0 0 auto;font-weight:500}.tools label input{width:auto}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:6px;text-align:center}th{font-size:12px;color:var(--mu);font-weight:600}
+td input{padding:8px;text-align:center}td.nm input{text-align:left}
+td.ov{font-weight:700}td.n{color:var(--mu);width:34px}
+td input.bad{border-color:var(--bad);outline:1px solid var(--bad)}
+.x{background:none;border:0;color:var(--mu);cursor:pointer;font-size:18px}.x:hover{color:var(--bad)}
+.pv{border-collapse:collapse;min-width:520px;font-size:13.5px;color:#000}
+.pv td,.pv th{border:1px solid #444;padding:5px 8px;color:#000}.pv th{background:#ff0;font-weight:700;font-size:12.5px}
+.pv .l{text-align:left}.hid{display:none}
+.tag{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--ac2);color:var(--ac);margin:0 6px 6px 0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}.mo.hid{display:none}.mb{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:22px;max-width:440px;width:100%}.mb p{margin:0 0 16px}.mb div{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}td.n{font-weight:700}tr.fail td:not(.n) input,tr.fail td.ov,tr.fail td.pp{color:var(--bad);font-weight:600}.pv tr.f td{color:#f00;font-weight:600}.pv tr.f td:first-child{color:#000}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="top"><div><h1>Exam Results Sheet Generator</h1><p class="sub">Enter the exam details and scores, download a ready-to-send Excel file.</p></div></div>
+
+ <div id="wiz" class="card">
+  <div class="steps"><i></i><i></i><i></i></div>
+  <div data-s="0">
+   <h2 style="margin:0 0 4px;font-size:18px">Who and what?</h2>
+   <label for="teacher">Teacher name</label><input id="teacher" placeholder="e.g. Dilshoda teacher">
+   <div class="row"><div><label for="group">Group</label><input id="group" placeholder="e.g. Pre-inter-end"></div>
+   <div><label for="exam">Exam</label><input id="exam" placeholder="e.g. beginner-end 6-10"></div></div>
+   <div class="hint" style="margin-top:18px">Already have a sheet? <button class="btn ghost" id="imp0" style="padding:5px 12px;font-size:13px;margin-left:6px">Import Excel file</button></div>
+  </div>
+  <div data-s="1" class="hid">
+   <h2 style="margin:0 0 4px;font-size:18px">When?</h2>
+   <div class="row"><div><label for="tdate">Date the exam was taken</label><input type="date" id="tdate"></div>
+   <div><label for="ttime">Time it was taken</label><input type="time" id="ttime"></div></div>
+   <div class="row"><div><label for="cdate">Date of checking</label><input type="date" id="cdate"></div>
+   <div><label for="ddate">Due submission date</label><input type="date" id="ddate"></div></div>
+  </div>
+  <div data-s="2" class="hid">
+   <h2 style="margin:0 0 4px;font-size:18px">How many students?</h2>
+   <label for="count">Total number of students</label><input type="number" id="count" min="1" max="200" placeholder="e.g. 12">
+   <div class="hint">This creates that many rows for you. The summary block (60% / 70% / 90%) is calculated automatically.</div>
+   <label style="display:flex;gap:8px;align-items:center;font-weight:500;margin-top:16px"><input type="checkbox" id="sp0" checked style="width:auto"> Speaking test has been taken</label><div class="hint">Not taken yet? Untick it. Ranking then uses the test score only (out of 100), and you can tick it later to include speaking.</div>
+  </div>
+  <div class="err" id="err"></div>
+  <div class="nav"><button class="btn ghost" id="back">Back</button><button class="btn" id="next">Next</button></div>
+ </div>
+
+ <div id="app" class="hid">
+  <div class="card" style="padding:14px 18px"><span id="tags"></span><button class="btn ghost" id="edit" style="padding:5px 12px;font-size:13px">Edit details</button></div>
+  <div class="stats">
+   <div class="stat"><b id="s0">0</b><span>Students</span></div>
+   <div class="stat"><b id="s1">0</b><span>Over 60%</span></div>
+   <div class="stat"><b id="s2">0</b><span>Over 70%</span></div>
+   <div class="stat"><b id="s3">0</b><span>Over 90%</span></div>
+  </div>
+  <div class="card">
+   <div class="tools">
+    <button class="btn sec" id="add">+ Add student</button>
+    <button class="btn sec" id="paste">Paste list</button>
+    <button class="btn sec" id="sort">Sort now</button>
+    <button class="btn sec" id="imp">Import Excel</button><span style="margin-left:auto;display:flex;gap:14px;flex-wrap:wrap"><label style="margin:0"><input type="checkbox" id="sp" checked> Speaking taken</label><label style="margin:0"><input type="checkbox" id="auto" checked> Auto-rank &amp; sort</label></span>
+   </div>
+   <div id="pbox" class="hid" style="margin-bottom:12px">
+    <textarea id="ptxt" rows="5" placeholder="One student per line: Name, test score, speaking score&#10;Sarvinoz 75 19&#10;Xamidulloh, 69, 18"></textarea>
+    <div class="hint">Separate by space, comma or tab. You can copy rows straight from Excel or Google Sheets.</div>
+    <button class="btn" id="pgo" style="margin-top:8px">Add these students</button>
+   </div>
+   <div class="scroll"><table><thead><tr><th>Rank</th><th style="text-align:left">Name / Surname</th><th>Test (0–100)</th><th id="thS">Speaking (0–20)</th><th id="thO">Overall /120</th><th>%</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+   <div class="err" id="err2"></div>
+  </div>
+  <div class="card">
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap"><b>Preview</b><button class="btn" id="dl">Download .xlsx</button></div>
+   <div class="scroll"><div id="pv"></div></div>
+   <div class="hint">Top 3 get green, blue and orange; everyone else is grey, exactly like your original file. Red text = failed (under 72 overall, which is 60% of 120).</div>
+   <div style="margin-top:12px"><button class="btn ghost" id="reset" style="font-size:13px;padding:6px 12px">Start a new sheet</button></div>
+  </div>
+ </div>
+</div>
+
+<div id="modal" class="mo hid"><div class="mb"><p id="mmsg"></p><div><button class="btn ghost" id="mcan">Cancel</button><button class="btn ghost" id="mdis">Don't save</button><button class="btn" id="mdl">Download .xlsx</button></div></div></div>
+<input type="file" id="file" accept=".xlsx" class="hid">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const KEY='examSheetV1';
+let S={step:0,d:{teacher:'',group:'',exam:'',tdate:'',ttime:'',cdate:'',ddate:'',count:''},rows:[],auto:true,done:false,sp:true};let dirty=false;
+const F=['teacher','group','exam','tdate','ttime','cdate','ddate','count'];
+function save(){dirty=true;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&v.d)S=v}catch(e){}}
+const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0])}
+function fd(v){if(!v)return'';const[y,m,d]=v.split('-').map(Number);return ord(d)+' '+MON[m-1]}
+function ft(v){if(!v)return'';let[h,m]=v.split(':').map(Number);const ap=h>=12?'pm':'am';h=h%12||12;return h+':'+String(m).padStart(2,'0')+ap}
+const num=v=>v===''||v==null||isNaN(+v)?null:+v;
+const SP=()=>S.sp!==false,MAX=()=>SP()?120:100;
+const ov=r=>(num(r.t)||0)+(SP()?(num(r.s)||0):0);
+const rankOf=r=>1+S.rows.filter(x=>ov(x)>ov(r)).length;
+const PASS=()=>MAX()*0.6,failed=r=>ov(r)<PASS()-1e-9;
+const pc=r=>ov(r)*100/MAX();
+
+/* wizard */
+function showStep(){document.querySelectorAll('[data-s]').forEach(e=>e.classList.toggle('hid',+e.dataset.s!==S.step));
+ document.querySelectorAll('.steps i').forEach((e,i)=>e.classList.toggle('on',i<=S.step));
+ $('back').style.visibility=S.step?'visible':'hidden';$('next').textContent=S.step===2?'Create sheet':'Next';$('err').textContent=''}
+function check(){const d=S.d;
+ if(S.step===0&&(!d.teacher.trim()||!d.group.trim()||!d.exam.trim()))return'Please fill in teacher, group and exam.';
+ if(S.step===1&&(!d.tdate||!d.ttime||!d.cdate||!d.ddate))return'Please fill in all four date/time fields.';
+ if(S.step===2){const c=+d.count;if(!c||c<1||c>200||!Number.isInteger(c))return'Enter a whole number between 1 and 200.'}
+ return''}
+$('next').onclick=()=>{const e=check();if(e){$('err').textContent=e;return}
+ if(S.step<2){S.step++;showStep()}else{const c=+S.d.count;while(S.rows.length<c)S.rows.push({n:'',t:'',s:''});S.done=true;start()}save()};
+$('back').onclick=()=>{if(S.step>0){S.step--;showStep();save()}};
+F.forEach(k=>$(k).addEventListener('input',()=>{S.d[k]=$(k).value;save()}));
+
+/* app */
+function start(){$('wiz').classList.toggle('hid',S.done);$('app').classList.toggle('hid',!S.done);if(S.done){tags();render()}else showStep()}
+function tags(){const d=S.d;$('tags').innerHTML=[d.teacher,d.group,d.exam,'Taken '+fd(d.tdate)+' '+ft(d.ttime),'Checked '+fd(d.cdate),'Due '+fd(d.ddate)].map(t=>'<span class="tag"></span>').join('');
+ [...$('tags').children].forEach((el,i)=>el.textContent=[d.teacher,d.group,d.exam,'Taken '+fd(d.tdate)+' '+ft(d.ttime),'Checked '+fd(d.cdate),'Due '+fd(d.ddate)][i])}
+function sortRows(){S.rows.sort((a,b)=>ov(b)-ov(a)||(num(b.t)||0)-(num(a.t)||0))}
+function render(){
+ if(S.auto)sortRows();
+ $('auto').checked=S.auto;$('sp').checked=SP();$('thS').classList.toggle('hid',!SP());$('thO').textContent='Overall /'+MAX();
+ $('tb').innerHTML='';
+ S.rows.forEach((r,i)=>{const tr=document.createElement('tr');
+  tr.innerHTML='<td class="n"></td><td class="nm"><input data-k="n" placeholder="Name Surname"></td><td><input data-k="t" type="number" min="0" max="100" step="any" inputmode="decimal"></td><td class="cs'+(SP()?'':' hid')+'"><input data-k="s" type="number" min="0" max="20" step="any" inputmode="decimal"></td><td class="ov"></td><td class="pp"></td><td><button class="x" title="Remove">×</button></td>';
+  tr.querySelectorAll('input').forEach(inp=>{inp.value=r[inp.dataset.k];
+   inp.addEventListener('input',()=>{r[inp.dataset.k]=inp.value;allCells();stats();preview();save()});
+   inp.addEventListener('change',()=>{if(S.auto&&inp.dataset.k!=='n'){render()}});
+   inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const all=[...document.querySelectorAll('#tb input')],j=all.indexOf(inp);const nx=all[j+1];if(nx)nx.focus();else{S.rows.push({n:'',t:'',s:''});render();const l=document.querySelectorAll('#tb input');l[l.length-3].focus()}}});});
+  tr.querySelector('.x').onclick=()=>{S.rows.splice(i,1);S.d.count=S.rows.length;render();save()};
+  cells(tr,r);$('tb').appendChild(tr)});
+ stats();preview();save()}
+function cells(tr,r){const t=num(r.t),s=num(r.s);
+ tr.querySelector('[data-k=t]').classList.toggle('bad',t!==null&&(t<0||t>100));
+ tr.querySelector('[data-k=s]').classList.toggle('bad',s!==null&&(s<0||s>20));
+ const filled=r.t!==''||(SP()&&r.s!=='');tr.classList.toggle('fail',!!filled&&failed(r));tr.querySelector('.n').textContent=filled?rankOf(r):'';tr.querySelector('.ov').textContent=filled?+ov(r).toFixed(1):'';tr.querySelector('.pp').textContent=filled?Math.round(pc(r))+'%':''}
+function allCells(){[...$('tb').children].forEach((tr,i)=>cells(tr,S.rows[i]))}
+function counts(){const n=S.rows.length,p=S.rows.map(pc);return{n,a:p.filter(x=>x>60).length,b:p.filter(x=>x>70).length,c:p.filter(x=>x>90).length}}
+function stats(){const c=counts();$('s0').textContent=c.n;$('s1').textContent=c.a;$('s2').textContent=c.b;$('s3').textContent=c.c}
+const COL=['#92d050','#00b0f0','#f79646'];
+function preview(){const d=S.d,c=counts(),pr=v=>c.n?Math.round(v*100/c.n):0;
+ let h='<table class="pv"><tr><td class="l" colspan="2"><b>Teacher:</b> '+esc(d.teacher)+'</td><td colspan="4" class="l"><b>exam was taken '+fd(d.tdate)+' at '+ft(d.ttime)+'</b></td></tr>'
+ +'<tr><td class="l" colspan="2"><b>Group:</b> '+esc(d.group)+'</td><td colspan="4" class="l"><b>due submission '+fd(d.ddate)+'</b></td></tr>'
+ +'<tr><td class="l" colspan="2"><b>Exam:</b> '+esc(d.exam)+'</td><td colspan="4" class="l"><b>checked '+fd(d.cdate)+'</b></td></tr>'
+ +'<tr><td class="l" colspan="2"><b>Jami o\'quvchi:</b></td><td><b>'+c.n+'</b></td><td><b>Percentage %</b></td><td colspan="2"></td></tr>'
+ +[['60',c.a],['70',c.b],['90',c.c]].map(x=>'<tr><td class="l" colspan="2"><b>'+x[0]+'% dan ko\'p yig\'ganlar:</b></td><td><b>'+x[1]+'</b></td><td><b>'+pr(x[1])+'</b></td><td colspan="2"></td></tr>').join('')
+ +'<tr><th>№</th><th>Name/Surname</th><th>Test score 100</th><th>Speaking score 20</th><th>Overall '+MAX()+'</th><th>Percentage %</th></tr>';
+ S.rows.forEach((r,i)=>{const bg=COL[rankOf(r)-1]||'#d9d9d9';h+='<tr class="'+(failed(r)?'f':'')+'" style="background:'+bg+'"><td><b>'+rankOf(r)+'</b></td><td class="l">'+esc(r.n)+'</td><td>'+esc(r.t)+'</td><td>'+(SP()?esc(r.s):'')+'</td><td>'+(+ov(r).toFixed(1))+'</td><td>'+Math.round(pc(r))+'</td></tr>'});
+ $('pv').innerHTML=h+'</table>'}
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+$('add').onclick=()=>{S.rows.push({n:'',t:'',s:''});S.d.count=S.rows.length;render();const l=document.querySelectorAll('#tb input');l[l.length-3].focus()};
+$('sort').onclick=()=>{sortRows();render()};
+$('auto').onchange=e=>{S.auto=e.target.checked;render()};
+$('paste').onclick=()=>$('pbox').classList.toggle('hid');
+$('pgo').onclick=()=>{const lines=$('ptxt').value.split('\n').map(l=>l.trim()).filter(Boolean);let add=0;
+ lines.forEach(l=>{const m=l.match(/^(.*?)[\s,;\t]+(\d+(?:[.,]\d+)?)[\s,;\t]+(\d+(?:[.,]\d+)?)\s*$/);if(!m)return;
+  const row={n:m[1].replace(/[,;\t]+$/,'').trim(),t:m[2].replace(',','.'),s:m[3].replace(',','.')};
+  const e=S.rows.findIndex(r=>!r.n&&r.t===''&&r.s==='');if(e>=0)S.rows[e]=row;else S.rows.push(row);add++});
+ $('err2').textContent=add<lines.length?(lines.length-add)+' line(s) skipped. Use: Name, test score, speaking score.':'';
+ if(add){$('ptxt').value='';$('pbox').classList.add('hid');S.d.count=S.rows.length;render()}};
+$('edit').onclick=()=>{S.done=false;S.step=0;F.forEach(k=>$(k).value=S.d[k]);start();save()};
+$('reset').onclick=async()=>{if(!(await guard('Your latest changes have not been downloaded as an Excel file yet. Download before starting a new sheet?')))return;S={step:0,d:Object.fromEntries(F.map(k=>[k,''])),rows:[],auto:true,done:false};F.forEach(k=>$(k).value='');$('sp0').checked=true;start();save();dirty=false};
+
+/* export */
+function validate(){const bad=[];S.rows.forEach((r,i)=>{const t=num(r.t),s=num(r.s);
+ if(!r.n.trim())bad.push('Row '+(i+1)+': name is missing');
+ if(t===null||t<0||t>100)bad.push('Row '+(i+1)+': test score must be 0–100');
+ if(SP()&&(s===null||s<0||s>20))bad.push('Row '+(i+1)+': speaking score must be 0–20')});return bad}
+async function exportXlsx(){
+ const bad=validate();if(bad.length){$('err2').textContent=bad.slice(0,3).join(' · ')+(bad.length>3?' · +'+(bad.length-3)+' more':'');window.scrollTo({top:0,behavior:'smooth'});return false}
+ $('err2').textContent='';
+ if(S.auto)sortRows();
+ const d=S.d,n=S.rows.length,last=10+n;
+ const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Sheet1',{views:[{showGridLines:true}]});
+ [[1,4.3],[2,4.7],[3,51.6],[4,18.3],[5,22.4],[6,22.9],[7,14],[8,16.6]].forEach(([c,w])=>ws.getColumn(c).width=w);
+ const m={style:'medium'},t={style:'thin'},hf={name:'Candara',size:14,bold:true};
+ const put=(a,v,o={})=>{const c=ws.getCell(a);c.value=v;c.font=hf;Object.assign(c,o);return c};
+ put('C2','Teacher:');put('D2',d.teacher);put('C3','Group: ');put('D3',d.group);put('C4','Exam:');put('D4',d.exam);
+ put('F2','exam was taken '+fd(d.tdate)+' at '+ft(d.ttime));put('F3','due submission '+fd(d.ddate));put('F4','checked '+fd(d.cdate));
+ put('C5',"Jami o'quvchi:",{alignment:{horizontal:'left'}});put('D5',n,{alignment:{horizontal:'left'}});put('E5','Percentage %',{alignment:{horizontal:'left'}});
+ const ths=[['60',6],['70',7],['90',8]];
+ ths.forEach(([p,r])=>{put('C'+r,p+"% dan ko'p yig'ganlar:",{alignment:{horizontal:'left'}});
+  const rng='G11:G'+last,val=S.rows.filter(x=>pc(x)>+p).length;
+  put('D'+r,{formula:'COUNTIF('+rng+',">'+p+'")',result:val},{alignment:{horizontal:'left'}});
+  put('E'+r,{formula:'D'+r+'*100/D5',result:val*100/n},{alignment:{horizontal:'left'}}).numFmt='0'});
+ for(let r=2;r<=8;r++){['C','D','E'].forEach(col=>{if(r<=4&&col==='E')return;const c=ws.getCell(col+r);
+  c.border={left:col==='C'?m:t,top:(r===2||r===5)?m:t,right:(col==='D'&&r<=4||col==='E')?t:undefined,bottom:(r===4||r===8)?t:undefined}})}
+ ['C2','C3','C4'].forEach(a=>ws.getCell(a).border={...ws.getCell(a).border,left:m});
+ [2,3,4,5,6,7,8].forEach(r=>ws.getRow(r).height=18);
+ const hd=['№','Name/Surname','Test score 100','Speaking score 20','Overall '+MAX(),'Percentage %'];
+ hd.forEach((v,i)=>{const c=ws.getCell(10,i+2);c.value=v;c.font={name:'Aharoni',size:12,bold:true};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFFFFF00'}};
+  c.alignment={horizontal:'center',vertical:'middle'};c.border={left:t,right:t,top:t,bottom:t}});
+ ws.getRow(10).height=24;
+ const cols=['FF92D050','FF00B0F0','FFF79646'];
+ S.rows.forEach((r,i)=>{const row=11+i,fill={type:'pattern',pattern:'solid',fgColor:{argb:cols[rankOf(r)-1]||'FFD9D9D9'}},bd={left:t,right:t,top:t,bottom:t};
+  const o=ov(r),p=pc(r);
+  const vals=[rankOf(r),r.n.trim(),num(r.t),SP()?num(r.s):null,{formula:'D'+row+'+E'+row,result:o},{formula:'F'+row+'*100/'+MAX(),result:p}];
+  vals.forEach((v,j)=>{const c=ws.getCell(row,j+2);c.value=v;c.fill=fill;c.border=bd;
+   c.font={name:'Calibri',size:j>=4?12:11,bold:j===0,...(j>0&&failed(r)?{color:{argb:'FFFF0000'}}:{})};
+   if(j===0||j>=4)c.alignment={horizontal:'center',vertical:'middle'};if(j>=4)c.numFmt='0'});
+  ws.getRow(row).height=23.25});
+ try{
+  const buf=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const name=[d.teacher,d.group,d.exam].join('_').replace(/[^\w\u0400-\u04FF\-]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')+'.xlsx';
+  const dl=window.claude?await claude.use('downloads'):null;
+  if(dl){await dl.save({filename:name,data:blob})}
+  else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove()}dirty=false;return true;
+ }catch(e){if(e&&e.code==='declined')return false;$('err2').textContent='Could not create the file: '+(e.message||e);return false}
+};
+
+load();F.forEach(k=>$(k).value=S.d[k]||'');$('sp0').checked=SP();start();dirty=false;
+
+/* speaking toggle */
+$('sp0').onchange=e=>{S.sp=e.target.checked;save()};
+$('sp').onchange=e=>{S.sp=e.target.checked;render()};
+$('dl').onclick=exportXlsx;
+
+/* leave / replace guard */
+function ask(msg){return new Promise(res=>{const m=$('modal');$('mmsg').textContent=msg;m.classList.remove('hid');const done=v=>{m.classList.add('hid');res(v)};$('mdl').onclick=()=>done('dl');$('mdis').onclick=()=>done('discard');$('mcan').onclick=()=>done('cancel')})}
+async function guard(msg){if(!dirty)return true;const a=await ask(msg);if(a==='cancel')return false;if(a==='dl')return await exportXlsx();return true}
+addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+
+/* import */
+function cv(c){let v=c.value;if(v&&typeof v==='object'){if('result' in v)v=v.result;else if(v.richText)v=v.richText.map(x=>x.text).join('');else if(v.text)v=v.text}return v==null?'':v}
+const MI={};MON.forEach((m,i)=>MI[m.slice(0,3).toLowerCase()]=i+1);
+function pd(s){const m=String(s).match(/(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]{3,})/);if(!m)return'';const mo=MI[m[2].slice(0,3).toLowerCase()];if(!mo)return'';return new Date().getFullYear()+'-'+String(mo).padStart(2,'0')+'-'+String(+m[1]).padStart(2,'0')}
+function pt(s){const m=String(s).match(/(\d{1,2})\s*[:,.]\s*(\d{2})\s*([ap]m)/i);if(!m)return'';let h=+m[1]%12;if(m[3].toLowerCase()==='pm')h+=12;return String(h).padStart(2,'0')+':'+m[2]}
+function parseSheet(ws){
+ const g=a=>String(cv(ws.getCell(a))).trim();
+ const d={teacher:g('D2'),group:g('D3'),exam:g('D4'),tdate:pd(g('F2')),ttime:pt(g('F2')),cdate:pd(g('F4')),ddate:pd(g('F3')),count:''};
+ let hr=0;for(let r=1;r<=40;r++)if(g('B'+r)==='№'){hr=r;break}
+ if(!hr)throw new Error('no header');
+ const sp=!/100\s*$/.test(g('F'+hr)),rows=[];
+ for(let r=hr+1;r<=hr+500;r++){const n=g('C'+r);if(!n)break;
+  const o=num(cv(ws.getCell('F'+r)));let T=num(cv(ws.getCell('D'+r))),Sc=num(cv(ws.getCell('E'+r)));
+  if(T===null&&o!==null)T=o-(Sc||0);
+  rows.push({n,t:T===null?'':String(T),s:Sc===null?'':String(Sc)})}
+ d.count=rows.length;return{step:0,d,rows,auto:true,done:true,sp}}
+function parseSheet2(ws){
+ if(!ws)throw new Error('the file has no sheets');
+ const R=Math.min(ws.rowCount||60,80),C=Math.min(ws.columnCount||12,15);
+ const T=(r,c)=>String(cv(ws.getCell(r,c))).trim();
+ const N=v=>num(String(v).replace(',','.'));
+ let hr=0,col={};
+ for(let r=1;r<=R&&!hr;r++){const cs={};
+  for(let c=1;c<=C;c++){const x=T(r,c).toLowerCase();
+   if(/name/.test(x)&&!cs.n)cs.n=c;else if(/test/.test(x)&&!cs.t)cs.t=c;else if(/speak/.test(x)&&!cs.s)cs.s=c;else if(/overall|total/.test(x)&&!cs.o)cs.o=c}
+  if(cs.n&&cs.t){hr=r;col=cs}}
+ if(!hr)throw new Error('could not find the table header (Name/Surname, Test score, ...)');
+ const m={};
+ for(let r=1;r<hr;r++)for(let c=1;c<=C;c++){const x=T(r,c);if(!x)continue;const l=x.toLowerCase();
+  if(/^teacher/.test(l))m.teacher=T(r,c+1);else if(/^group/.test(l))m.group=T(r,c+1);else if(/^exam\s*:/.test(l))m.exam=T(r,c+1);
+  else if(/taken/.test(l)){m.tdate=pd(x);m.ttime=pt(x)}else if(/due/.test(l))m.ddate=pd(x);else if(/ch\w*ked/.test(l))m.cdate=pd(x)}
+ const d={teacher:m.teacher||'',group:m.group||'',exam:m.exam||'',tdate:m.tdate||'',ttime:m.ttime||'',cdate:m.cdate||'',ddate:m.ddate||'',count:''};
+ const oh=col.o?T(hr,col.o):'',sp=!!col.s&&!/100\s*$/.test(oh),rows=[];
+ for(let r=hr+1;r<=hr+500;r++){const n=T(r,col.n);if(!n)break;
+  const o=col.o?N(cv(ws.getCell(r,col.o))):null,s=col.s?N(cv(ws.getCell(r,col.s))):null;let t=N(cv(ws.getCell(r,col.t)));
+  if(t===null&&o!==null)t=o-(s||0);
+  rows.push({n,t:t===null?'':String(t),s:s===null?'':String(s)})}
+ if(!rows.length)throw new Error('the table has no students');
+ d.count=rows.length;return{step:0,d,rows,auto:true,done:true,sp}}
+function showErr(m){(S.done?$('err2'):$('err')).textContent=m}
+$('imp').onclick=$('imp0').onclick=()=>$('file').click();
+$('file').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+ if(!(await guard('Importing replaces the sheet you are working on. Download it first?')))return;
+ try{const wb=new ExcelJS.Workbook();await wb.xlsx.load(await f.arrayBuffer());S=parseSheet2(wb.worksheets[0]);
+  F.forEach(k=>$(k).value=S.d[k]);$('sp0').checked=SP();start();save();dirty=false;$('err2').textContent=''}
+ catch(x){console.error(x);showErr('Could not read that file: '+((x&&x.message)||x)+'. Use an .xlsx (not .xls) with the Name / Test score table.')}};
+
+</script>
+</body>
+</html>
